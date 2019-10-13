@@ -29,7 +29,7 @@ def test_rate_ndcg(model, test_data, ndcg_user_items=None, ndcg_path=None):
   ndcg_sum = [0] * 8
   batch_size = 64
 
-  length = len(ndcg_user_items)
+  lengths = [0] * 8
   user_items = list(ndcg_user_items.items())
 
   for i in range(0, len(user_items), batch_size):
@@ -58,11 +58,14 @@ def test_rate_ndcg(model, test_data, ndcg_user_items=None, ndcg_path=None):
       _, indices = output[:, :, i].sort(descending=True)
       ranked_scores = ratings[:, :, i].gather(-1, indices)
 
-      nn = ndcg(ranked_scores, k=10)
-      print(nn)
-      ndcg_sum[i] += nn.sum().item() #ndcg(ranked_scores, k=10).sum().item()
+      has_rates = (ranked_scores.sum(1) > 0)
+      if has_rates.sum() == 0:
+        continue
 
-  ndcgs = [n / length for n in ndcg_sum]
+      ndcg_sum[i] += ndcg(ranked_scores[has_rates], k=50).sum().item()
+      lengths[i] += has_rates.sum().item()
+
+  ndcgs = [n / l for n, l in zip(ndcg_sum, lengths)]
   return mean(ndcgs), ndcgs
 
 

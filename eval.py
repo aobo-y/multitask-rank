@@ -1,5 +1,6 @@
 import os
 import argparse
+import torch
 
 import config
 from main import init
@@ -23,6 +24,8 @@ def main():
   parser.add_argument('-c', '--checkpoint')
   parser.add_argument('evals', nargs='+')
   args = parser.parse_args()
+
+  torch.no_grad()
 
   model, misc = init(args.model, args.checkpoint)
   model.eval()

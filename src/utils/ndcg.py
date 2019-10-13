@@ -46,10 +46,9 @@ def ndcg(rel_list, k=None, method='torch'):
     ndcg: (*) tensor
   '''
 
-  if method == 'numpy':
-    return np_dcg(rel_list, k) / np_idcg(rel_list, k)
+  idcg_val = idcg(rel_list, k)
 
-  return dcg(rel_list, k) / idcg(rel_list, k)
+  return dcg(rel_list, k) / idcg_val
 
 
 
